@@ -1,11 +1,28 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import MagicButton from '../../components/MagicButton';
 
 const CLASS = 'lexical-rich-text-input';
 const INDEX = 1;
 
-function MyComponent() {
-    return <div>Hello, I'm rendered here!</div>;
+function renderComponent(element, root) {
+    if (root) {
+        root.unmount();
+    }
+
+    // Create a new div to render the component
+    const siblingDiv = document.createElement('div');
+    siblingDiv.style.display = 'flex';
+    siblingDiv.style.alignItems = 'end';
+    siblingDiv.style.marginBottom = '2px';
+    siblingDiv.style.marginRight = '10px'; // Adjust as needed
+
+    // Insert the new div before the target element
+    element.parentNode.insertBefore(siblingDiv, element);
+
+    root = ReactDOM.createRoot(siblingDiv);
+    root.render(<MagicButton />);
+    return root;
 }
 
 function waitForElement(selector, index, callback) {
@@ -15,33 +32,26 @@ function waitForElement(selector, index, callback) {
 
     const checkElement = () => {
         console.log('Checking element...', new Date().toISOString());
-        
+
         const elements = document.getElementsByClassName(CLASS);
         const elementsByQuery = document.querySelectorAll(selector);
-        
+
         console.log('Elements found:', {
-            byClassName: Array.from(elements).length,
-            byQuerySelector: Array.from(elementsByQuery).length,
+            byClassName: elements.length,
+            byQuerySelector: elementsByQuery.length,
             rawSelector: selector,
             isCurrentlyRendered: isRendered
         });
 
         const element = elements[index] || elementsByQuery[index];
 
-        // Element exists but not rendered
-        if (element && !isRendered) {
+        if (element && (!isRendered || element !== previousElement)) {
             console.log('✅ Element found! Rendering component...');
-            if (root) {
-                root.unmount(); // Cleanup any existing root
-            }
-            root = ReactDOM.createRoot(element);
-            root.render(<MyComponent />);
+            root = renderComponent(element, root);
             isRendered = true;
             previousElement = element;
             callback(element);
-        } 
-        // Element doesn't exist but was rendered
-        else if (!element && isRendered) {
+        } else if (!element && isRendered) {
             console.log('❌ Element removed, cleaning up render...');
             if (root) {
                 root.unmount();
@@ -49,17 +59,6 @@ function waitForElement(selector, index, callback) {
             isRendered = false;
             root = null;
             previousElement = null;
-        }
-        // Element exists but changed
-        else if (element && isRendered && element !== previousElement) {
-            console.log('🔄 Element changed, re-rendering...');
-            if (root) {
-                root.unmount();
-            }
-            root = ReactDOM.createRoot(element);
-            root.render(<MyComponent />);
-            previousElement = element;
-            callback(element);
         }
     };
 
@@ -70,7 +69,7 @@ function waitForElement(selector, index, callback) {
         });
         checkElement();
     });
-    
+
     console.log('Setting up observer...');
     observer.observe(document.body, {
         childList: true,
