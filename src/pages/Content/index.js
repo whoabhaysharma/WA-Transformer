@@ -31,28 +31,16 @@ function waitForElement(selector, index, callback) {
     let previousElement = null;
 
     const checkElement = () => {
-        console.log('Checking element...', new Date().toISOString());
-
         const elements = document.getElementsByClassName(CLASS);
-        const elementsByQuery = document.querySelectorAll(selector);
-
-        console.log('Elements found:', {
-            byClassName: elements.length,
-            byQuerySelector: elementsByQuery.length,
-            rawSelector: selector,
-            isCurrentlyRendered: isRendered
-        });
-
+        const elementsByQuery = document.querySelectorAll(selector)
         const element = elements[index] || elementsByQuery[index];
 
         if (element && (!isRendered || element !== previousElement)) {
-            console.log('✅ Element found! Rendering component...');
             root = renderComponent(element, root);
             isRendered = true;
             previousElement = element;
             callback(element);
         } else if (!element && isRendered) {
-            console.log('❌ Element removed, cleaning up render...');
             if (root) {
                 root.unmount();
             }
@@ -63,14 +51,9 @@ function waitForElement(selector, index, callback) {
     };
 
     const observer = new MutationObserver((mutations) => {
-        console.log('🔄 DOM mutation detected:', {
-            mutationsCount: mutations.length,
-            timestamp: new Date().toISOString()
-        });
         checkElement();
     });
 
-    console.log('Setting up observer...');
     observer.observe(document.body, {
         childList: true,
         subtree: true,
