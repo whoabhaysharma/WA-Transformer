@@ -1,0 +1,18 @@
+.container {
+    cursor: pointer;
+    display: inline-block;
+}
+
+.panel {
+    position: fixed;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    transform-origin: bottom left;
+    opacity: 1;
+    transform: scale(0);
+    z-index: 999;
+}
+
+.panel.open {
+    opacity: 1;
+    transform: scale(1);
+}
