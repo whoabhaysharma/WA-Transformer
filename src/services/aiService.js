@@ -1,9 +1,15 @@
+import config from "../config";
+
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 
-const genAI = new GoogleGenerativeAI("YOUR_API_KEY");
+const genAI = new GoogleGenerativeAI(config.API_KEY);
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-const prompt = "Explain how AI works";
+const getAnswer = async (prompt) => {
+    const result = await model.generateContent(prompt);
+    return result.response.text();
+}
 
-const result = await model.generateContent(prompt);
-console.log(result.response.text());
+export {
+    getAnswer
+}

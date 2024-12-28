@@ -1,9 +1,9 @@
 import styles from './styles.module.css';
 import React from "react";
 
-export default function Label({ text = "" }) {
+export default function Label({ text = "", onClick = () => { } }) {
     return (
-        <div className={styles.container}>
+        <div onClick={onClick} className={styles.container}>
             <p>{text}</p>
         </div>
     )

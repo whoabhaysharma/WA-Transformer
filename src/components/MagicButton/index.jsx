@@ -4,6 +4,7 @@ import React, { useRef, useState, useEffect } from "react";
 import Panel from "../Panel";
 import Label from "../Label";
 import { createPortal } from "react-dom";
+import { getAnswer } from "../../services/aiService";
 
 const PANEL_OFFSET = 10;
 const SPARKLES_COLOR = '#8696a0';
@@ -51,6 +52,13 @@ export default function MagicButton() {
         };
     };
 
+    const selectHandler = async () => {
+        const prompt = "what is the meaning of life?";
+        const answer = await getAnswer(prompt);
+        console.log(answer, 'HELO WORLD')
+
+    }
+
     return (
         <>
             <div
@@ -72,7 +80,7 @@ export default function MagicButton() {
                 >
                     <Panel>
                         {labelItems.map(item => (
-                            <Label key={item.id} text={item.text} />
+                            <Label onClick={() => selectHandler()} key={item.id} text={item.text} />
                         ))}
                     </Panel>
                 </div>,
