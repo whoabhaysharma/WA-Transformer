@@ -1,4 +1,4 @@
-import { Sparkles } from "lucide-react";
+import { Pencil, Sparkles } from "lucide-react";
 import styles from './styles.module.css';
 import React, { useRef, useState, useEffect } from "react";
 import Panel from "../Panel";
@@ -7,7 +7,11 @@ import { createPortal } from "react-dom";
 import { getAnswer } from "../../services/aiService";
 import { getInputContent, setInputContent } from "../../../utils/Whatsapp";
 import KeySimulator from "../../../utils/KeySimulator";
-import { CONVERTERS } from "../../constant/Keys";
+import { CONVERTERS, WA_MANIPULATOR_CONFIG } from "../../constant/Keys";
+import Storage from "../../../utils/Storage";
+import Modal from "../Modal";
+import { CONVERTER_PROMPT_TEMPLATE } from "../../constant/Prompts";
+import { INPUT_PHRASE, INSTRUCTION } from "../../constant/Macros";
 
 const PANEL_OFFSET = 10;
 const SPARKLES_COLOR = '#8696a0';
@@ -18,6 +22,9 @@ export default function MagicButton() {
     const panelRef = useRef(null);
     const [showPanel, setShowPanel] = useState(false);
     const [converters, setConverters] = useState([])
+    const [selectedConverter, setSelectedConverter] = useState(null);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(false);
 
     useEffect(() => {
         const config = Storage.get(WA_MANIPULATOR_CONFIG);
@@ -54,37 +61,111 @@ export default function MagicButton() {
         };
     };
 
-    const selectHandler = async (prompt) => {
+    const selectHandler = async (promptPrefix) => {
         setShowPanel(false)
-        const prompt = `${prompt} - ${getInputContent()}`;
-        const answer = await getAnswer(prompt);
-        const inputContent = getInputContent();
+        try {
+            setLoading(true)
+            const prompt = CONVERTER_PROMPT_TEMPLATE.replace(INSTRUCTION, promptPrefix).replace(INPUT_PHRASE, getInputContent());
+            const answer = await getAnswer(prompt);
+            const inputContent = getInputContent();
 
-        if (inputContent) {
-            for (let i = 0; i < inputContent.length; i++) {
+            if (inputContent) {
+                for (let i = 0; i < inputContent.length; i++) {
+                    setTimeout(() => {
+                        KeySimulator.simulate("Backspace");
+                    }, i * 1);
+                }
                 setTimeout(() => {
-                    KeySimulator.simulate("Backspace");
-                }, i * 1);
-            }
-            setTimeout(() => {
+                    setInputContent(answer);
+                }, inputContent.length * 1);
+            } else {
                 setInputContent(answer);
-            }, inputContent.length * 1);
-        } else {
-            setInputContent(answer);
+            }
+        } catch (e) {
+            console.error(e);
+        } finally {
+            setLoading(false)
         }
+
     }
+
+    const onEdit = (item) => {
+        setSelectedConverter(item);
+    }
+
+    const handleInputChange = (field, value) => {
+        setSelectedConverter(prev => ({
+            ...prev,
+            [field]: value
+        }));
+    };
 
     return (
         <>
+            {createPortal(
+                <Modal active={selectedConverter !== null}>
+                    <Panel>
+                        <div style={{ minWidth: "550px" }}>
+                            <div style={{ width: "100%" }}>
+                                <input
+                                    type="text"
+                                    value={selectedConverter?.label}
+                                    class={styles.input}
+                                    onChange={(e) => handleInputChange('label', e.target.value)}
+                                />
+                                <textarea
+                                    value={selectedConverter?.prefixPrompt}
+                                    class={styles.textarea}
+                                    onChange={(e) => handleInputChange('prefixPrompt', e.target.value)}
+                                ></textarea>
+                            </div>
+                            <div style={{ width: "100%" }}>
+                                <button
+                                    onClick={() => setSelectedConverter(null)}
+                                    class={`${styles.button} ${styles.cancel}`}
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    class={styles.button}
+                                    onClick={() => {
+                                        const config = Storage.get(WA_MANIPULATOR_CONFIG) || {};
+                                        const updatedConverters = (config[CONVERTERS] || []).map(conv =>
+                                            conv.id === selectedConverter.id ? selectedConverter : conv
+                                        );
+                                        Storage.set(WA_MANIPULATOR_CONFIG, {
+                                            ...config,
+                                            [CONVERTERS]: updatedConverters
+                                        });
+                                        setConverters(updatedConverters);
+                                        setSelectedConverter(null);
+                                    }}
+                                >
+                                    Save
+                                </button>
+                            </div>
+                        </div>
+                    </Panel>
+                </Modal>,
+                document.body
+            )}
             <div
                 ref={buttonRef}
                 className={styles.container}
                 onClick={togglePanel}
             >
-                <Sparkles
-                    color={SPARKLES_COLOR}
-                    size={SPARKLES_SIZE}
-                />
+                {loading ? (
+                    <div className={styles.loader}>
+                        <div className={styles.spinner} />
+                    </div>
+                ) : (
+                        <Sparkles
+                            color={error ? "#ff0000" : SPARKLES_COLOR}
+                            size={SPARKLES_SIZE}
+                        />  
+
+                )
+                }
             </div>
             {createPortal(
                 <div
@@ -94,7 +175,18 @@ export default function MagicButton() {
                 >
                     <Panel>
                         {converters.map(item => (
-                            <Label onClick={() => selectHandler(item.prefixPrompt)} key={item.id} text={item.text} />
+                            <Label
+                                onClick={() => selectHandler(item.prefixPrompt)}
+                                key={item.id}
+                                text={item.label}
+                            >
+                                <div style={{ cursor: "pointer" }} onClick={() => onEdit(item)}>
+                                    <Pencil
+                                        color={SPARKLES_COLOR}
+                                        size={15}
+                                    />
+                                </div>
+                            </Label>
                         ))}
                     </Panel>
                 </div>,

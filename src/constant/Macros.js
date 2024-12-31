@@ -1,0 +1,7 @@
+const INSTRUCTION = '[INSTRUCTION]'
+const INPUT_PHRASE = '[PHRASE]'
+
+export {
+    INSTRUCTION,
+    INPUT_PHRASE
+}

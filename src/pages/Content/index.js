@@ -8,15 +8,15 @@ import { converters } from '../../constant/TextConverters';
 const CLASS = 'lexical-rich-text-input';
 const INDEX = 1;
 
-const config = Storage.get(WA_MANIPULATOR_CONFIG)
-
-if (!config) {
-    Storage.set(WA_MANIPULATOR_CONFIG, {
-        [CONVERTERS]: converters
-    });
-}
-
 function renderComponent(element, root) {
+
+    const config = Storage.get(WA_MANIPULATOR_CONFIG)
+
+    if (!config) {
+        Storage.set(WA_MANIPULATOR_CONFIG, {
+            [CONVERTERS]: converters
+        });
+    }
     if (root) {
         root.unmount();
     }

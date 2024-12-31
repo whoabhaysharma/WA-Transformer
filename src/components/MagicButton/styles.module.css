@@ -1,6 +1,11 @@
+*{
+    box-sizing: border-box;
+}
 .container {
     cursor: pointer;
-    display: inline-block;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .panel {
@@ -15,4 +20,93 @@
 .panel.open {
     opacity: 1;
     transform: scale(1);
+}
+
+.settingContainer{
+    padding: 8px 15px;
+    display: flex;
+    justify-content: end;
+}
+
+.smallText {
+    cursor: pointer;
+    font-size: 0.8rem;
+    color: #fff;
+}
+
+.formContainer div {
+    margin-bottom: 12px;
+}
+
+.input {
+    background-color: #202c33;
+    border: none;
+    border-radius: 4px;
+    padding: 8px;
+    width: 100%;
+    color: #e9edef;
+    font-size: 14px;
+    outline: none;
+    margin-bottom: 8px;
+}
+
+.textarea {
+    background-color: #202c33;
+    border: none;
+    border-radius: 4px;
+    padding: 8px;
+    width: 100%;
+    color: #e9edef;
+    font-size: 14px;
+    outline: none;
+    max-height: 100%;
+    max-width: 100%;
+    overflow: auto;
+    resize: none;
+    min-height: 250px;
+}
+
+.button {
+    background-color: #005c4b; /* WhatsApp button green */
+    border: none;
+    border-radius: 4px;
+    color: #e9edef;
+    padding: 8px 16px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-right: 8px;
+}
+
+.button:hover {
+    background-color: #008069;
+}
+
+.button.cancel {
+    background-color: #3c4043; /* Cancel button gray */
+}
+
+.button.cancel:hover {
+    background-color: #5f6368;
+}
+.loader {
+    display: inline-block;
+    position: relative;
+    width: 20px;
+    height: 20px;
+}
+
+.spinner {
+    position: absolute;
+    border: 4px solid #202c33;
+    border-radius: 50%;
+    border-top: 4px solid #00a884;
+    width: 100%;
+    height: 100%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }

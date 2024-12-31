@@ -1,8 +1,10 @@
 .container{
     color: #fff;
-    cursor: pointer;
-    padding: 4px 8px;
+    padding: 8px 15px;
     border-radius: 5px;
+    display: flex;
+    gap: 15px;
+    justify-content: space-between;
 }
 
 .container:hover{
