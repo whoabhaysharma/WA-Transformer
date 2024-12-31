@@ -5,6 +5,8 @@ import Panel from "../Panel";
 import Label from "../Label";
 import { createPortal } from "react-dom";
 import { getAnswer } from "../../services/aiService";
+import { getInputContent, setInputContent } from "../../../utils/Whatsapp";
+import KeySimulator from "../../../utils/KeySimulator";
 
 const PANEL_OFFSET = 10;
 const SPARKLES_COLOR = '#8696a0';
@@ -53,10 +55,22 @@ export default function MagicButton() {
     };
 
     const selectHandler = async () => {
-        const prompt = "what is the meaning of life?";
+        const prompt = `convert this into professional english - ${getInputContent()}`;
         const answer = await getAnswer(prompt);
-        console.log(answer, 'HELO WORLD')
+        const inputContent = getInputContent();
 
+        if (inputContent) {
+            for (let i = 0; i < inputContent.length; i++) {
+                setTimeout(() => {
+                    KeySimulator.simulate("Backspace");
+                }, i * 1);
+            }
+            setTimeout(() => {
+                setInputContent(answer);
+            }, inputContent.length * 1);
+        } else {
+            setInputContent(answer);
+        }
     }
 
     return (
@@ -89,3 +103,6 @@ export default function MagicButton() {
         </>
     );
 }
+
+
+// div[aria - placeholder= "Type a message"] span
