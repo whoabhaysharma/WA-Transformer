@@ -32,6 +32,7 @@ export default function MagicButton() {
     }, [])
 
     const togglePanel = () => {
+        if (getInputContent().length === 0) return
         setShowPanel(prev => !prev);
     };
 
@@ -82,6 +83,7 @@ export default function MagicButton() {
                 setInputContent(answer);
             }
         } catch (e) {
+            setError(true);
             console.error(e);
         } finally {
             setLoading(false)
@@ -128,7 +130,10 @@ export default function MagicButton() {
                                 </button>
                                 <button
                                     class={styles.button}
+                                    disabled={!selectedConverter?.label || !selectedConverter?.prefixPrompt}
                                     onClick={() => {
+                                        if (!selectedConverter.label || !selectedConverter.prefixPrompt) return;
+
                                         const config = Storage.get(WA_MANIPULATOR_CONFIG) || {};
                                         const updatedConverters = (config[CONVERTERS] || []).map(conv =>
                                             conv.id === selectedConverter.id ? selectedConverter : conv

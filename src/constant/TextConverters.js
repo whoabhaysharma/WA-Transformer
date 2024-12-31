@@ -19,6 +19,8 @@ const converters = [
         label: 'Informal Hinglish',
         prefixPrompt: 'Convert the given phrase into casual, informal Hindi written in English letters, with a tone suitable for friendly banter or informal chats.',
     }
-]
+];
 
-export {converters}
+export {
+    converters
+}
