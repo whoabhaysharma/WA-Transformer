@@ -7,22 +7,22 @@ import { createPortal } from "react-dom";
 import { getAnswer } from "../../services/aiService";
 import { getInputContent, setInputContent } from "../../../utils/Whatsapp";
 import KeySimulator from "../../../utils/KeySimulator";
+import { CONVERTERS } from "../../constant/Keys";
 
 const PANEL_OFFSET = 10;
 const SPARKLES_COLOR = '#8696a0';
 const SPARKLES_SIZE = 20;
 
-const labelItems = [
-    { id: 1, text: "Refraze" },
-    { id: 2, text: "Check 1" },
-    { id: 3, text: "Test one" },
-    { id: 4, text: "Magic Button" }
-];
-
 export default function MagicButton() {
     const buttonRef = useRef(null);
     const panelRef = useRef(null);
     const [showPanel, setShowPanel] = useState(false);
+    const [converters, setConverters] = useState([])
+
+    useEffect(() => {
+        const config = Storage.get(WA_MANIPULATOR_CONFIG);
+        setConverters(config?.[CONVERTERS] || []);
+    }, [])
 
     const togglePanel = () => {
         setShowPanel(prev => !prev);
@@ -54,8 +54,9 @@ export default function MagicButton() {
         };
     };
 
-    const selectHandler = async () => {
-        const prompt = `convert this into professional english - ${getInputContent()}`;
+    const selectHandler = async (prompt) => {
+        setShowPanel(false)
+        const prompt = `${prompt} - ${getInputContent()}`;
         const answer = await getAnswer(prompt);
         const inputContent = getInputContent();
 
@@ -87,14 +88,13 @@ export default function MagicButton() {
             </div>
             {createPortal(
                 <div
-                    id="PANEL"
                     ref={panelRef}
                     className={styles.panel}
                     style={getPanelStyle()}
                 >
                     <Panel>
-                        {labelItems.map(item => (
-                            <Label onClick={() => selectHandler()} key={item.id} text={item.text} />
+                        {converters.map(item => (
+                            <Label onClick={() => selectHandler(item.prefixPrompt)} key={item.id} text={item.text} />
                         ))}
                     </Panel>
                 </div>,

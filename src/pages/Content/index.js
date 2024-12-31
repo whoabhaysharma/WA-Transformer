@@ -1,9 +1,20 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import MagicButton from '../../components/MagicButton';
+import Storage from '../../../utils/Storage';
+import { CONVERTERS, WA_MANIPULATOR_CONFIG } from '../../constant/Keys';
+import { converters } from '../../constant/TextConverters';
 
 const CLASS = 'lexical-rich-text-input';
 const INDEX = 1;
+
+const config = Storage.get(WA_MANIPULATOR_CONFIG)
+
+if (!config) {
+    Storage.set(WA_MANIPULATOR_CONFIG, {
+        [CONVERTERS]: converters
+    });
+}
 
 function renderComponent(element, root) {
     if (root) {
