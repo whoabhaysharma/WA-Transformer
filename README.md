@@ -1,4 +1,4 @@
-# WA-manipulator
+# WA-Transformer
 
 WA-manipulator is a Chrome extension designed to enhance your WhatsApp Web experience by adding a button next to the input field. This button enables you to easily convert and transform your text messages between professional and informal tones.
 
